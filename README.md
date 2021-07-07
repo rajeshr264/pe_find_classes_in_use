@@ -1,1 +1,2 @@
-# pe_find_classes_in_use
+#  this script connects to the PE server and saves all the manifests in use   
+ 
