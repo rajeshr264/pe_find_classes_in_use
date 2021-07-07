@@ -1,10 +1,8 @@
 #!/bin/bash 
 # -vx
 
-#PDB_CURL_CMD="curl -s GET https://$PE_SERVER:8081/pdb/query/v4/nodes \
-#    --cert $PE_HOST_CERT --key $PE_HOST_KEY --cacert $PE_LOCAL_CERT"
-# curl -X GET https://rajsplk26-master.classroom.puppet.com:8081/pdb/query/v4/nodes --data-urlencode "query=[\">\", \"facts_timestamp\", \"$(date -d '-1 day' -Isec)\"]" -H "X-Authentication:$TOKEN" |jq -r '.[].certname'
-
+# this script makes REST API calls to Puppet Enterprise to 
+# get the list of manifests used on 'recently active' nodes.
 run_setup() { 
    PE_SERVER="$(puppet config print server)"
    echo "Enter PE Username:"
@@ -35,8 +33,8 @@ get_manifests_in_active_nodes() {
       mapfile -t MANIFESTS < <(curl -k -s -X GET https://$PE_SERVER:8081/pdb/query/v4/nodes/$node/resources  -H "X-Authentication:$TOKEN"|jq -r '.[]|.file'|grep -v 'null')
 
       (( ${#MANIFESTS[@]} > 0 )) || {
-        fail "Error: Failed to get the manifests from the PDB." \
-             "Please ensure this script is run on a Puppet Primary server."
+        fail "Error: Failed to get the name of manifests from the PDB." \
+             "Also ensure this script is run on a Puppet Primary server."
       }
 
       for manifest in ${MANIFESTS[@]} 
@@ -45,9 +43,14 @@ get_manifests_in_active_nodes() {
       done 
    done
   
+   # remove duplicate entries
    sort -u $MANIFESTS_FILE > $OUTPUT_FILE 
    echo "Info: $OUTPUT_FILE contains all the manifest files used in all the nodes"
 }
+
+# main
 run_setup
+# get the list of active nodes, by checking in the last time they sent 'facts'
 get_active_nodes
+# for each active-node, get the list of manifests used
 get_manifests_in_active_nodes
