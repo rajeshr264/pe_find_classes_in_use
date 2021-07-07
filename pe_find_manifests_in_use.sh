@@ -21,6 +21,7 @@ run_setup() {
 }
 
 get_active_nodes() {
+   echo "Info: Getting list of active nodes"
    mapfile -t ACTIVE_NODES < <(curl -k -s -X GET https://$PE_SERVER:8081/pdb/query/v4/nodes --data-urlencode "query=[\">\", \"facts_timestamp\", \"$(date -d '-1 day' -Isec)\"]"  -H "X-Authentication:$TOKEN"  |jq -r '.[].certname')
 
     (( ${#ACTIVE_NODES[@]} > 0 )) || {
@@ -30,6 +31,8 @@ get_active_nodes() {
 }
 
 get_manifests_in_active_nodes() {
+   echo "Info: Getting list of manifests used in the active nodes"
+
    MANIFESTS_FILE="${PE_SERVER}_all_manifests.txt"
    OUTPUT_FILE="${PE_SERVER}_manifests.txt"
    
@@ -57,6 +60,7 @@ get_manifests_in_active_nodes() {
   
    # sort & remove duplicate manifest file entries
    sort -u $MANIFESTS_FILE > $OUTPUT_FILE 
+   rm -f $MANIFESTS_FILE # cleanup
    echo "Info: '$OUTPUT_FILE' contains all the manifest files used in all the active nodes."
 }
 
