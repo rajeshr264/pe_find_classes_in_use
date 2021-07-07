@@ -60,6 +60,8 @@ get_manifests_in_active_nodes() {
   
    # sort & remove duplicate manifest file entries
    sort -u $MANIFESTS_FILE > $OUTPUT_FILE 
+   # remove manifests related to 'puppet_enterprise' module
+   sed -i "/modules\/puppet_enterprise/d" $OUTPUT_FILE
    rm -f $MANIFESTS_FILE # cleanup
    echo "Info: '$OUTPUT_FILE' contains all the manifest files used in all the active nodes."
 }
