@@ -7,13 +7,10 @@
 
 run_setup() { 
    PE_SERVER="$(puppet config print server)"
-#   echo "Enter PE Username:"
-#   read PE_USER
-#   echo "Enter PE Password:"
-#   read PE_PASSWORD
-
-   PE_USER="admin"
-   PE_PASSWORD="puppetlabs"
+   echo "Enter PE Username:"
+   read PE_USER
+   echo "Enter PE Password:"
+   read PE_PASSWORD
 
    TOKEN=$(curl -s -k -X POST -H 'Content-Type: application/json' -d "{\"login\": \"$PE_USER\", \"password\": \"$PE_PASSWORD\"}" https://$PE_SERVER:4433/rbac-api/v1/auth/token |jq -r '.token')
 }
