@@ -16,7 +16,7 @@ run_setup() {
    read PE_USER
    echo "Enter PE Password:"
    read -s PE_PASSWORD
-   PE_SERVER="$(puppet config print server)"
+   PE_SERVER="$(sudo puppet config print server)"
    TOKEN=$(curl -s -k -X POST -H 'Content-Type: application/json' -d "{\"login\": \"$PE_USER\", \"password\": \"$PE_PASSWORD\"}" https://$PE_SERVER:4433/rbac-api/v1/auth/token |jq -r '.token')
 }
 
@@ -62,6 +62,8 @@ get_manifests_in_active_nodes() {
    sort -u $MANIFESTS_FILE > $OUTPUT_FILE 
    # remove manifests related to 'puppet_enterprise' module
    sed -i "/modules\/puppet_enterprise/d" $OUTPUT_FILE
+   # remove all references to code from /opt/puppetlabs
+   sed -i "/opt\/puppetlabs/d" $OUTPUT_FILE
    rm -f $MANIFESTS_FILE # cleanup
    echo "Info: '$OUTPUT_FILE' contains all the manifest files used in all the active nodes."
 }
